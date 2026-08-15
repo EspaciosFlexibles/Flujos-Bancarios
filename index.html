@@ -206,6 +206,7 @@ body{
 .kpi.k-utilidad::before{ background: var(--copper-bright); }
 .kpi.k-margen::before{ background: var(--gold); }
 .kpi-label{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.1em; text-transform:uppercase; color: var(--paper-faint); margin-bottom:10px; }
+.kpi-ref-mes{ font-family: var(--sans); font-size: 10px; letter-spacing:normal; text-transform:none; color: rgba(90,90,102,0.55); font-weight:400; }
 .kpi-value{ font-family: var(--serif); font-size: 30px; font-weight:600; letter-spacing:-0.01em; color: var(--paper); }
 .kpi-value.neg{ color: var(--rose); }
 .kpi-delta{ font-family: var(--mono); font-size: 11.5px; margin-top:8px; display:flex; align-items:center; gap:5px; }
@@ -231,6 +232,7 @@ body{
 
 .grid-2{ display:grid; grid-template-columns: 1.3fr 1fr; gap:14px; }
 .grid-2-even{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+.grid-2-even-balanced .panel{ display:flex; flex-direction:column; justify-content:center; }
 .grid-3{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
 
 canvas{ max-width:100%; }
@@ -324,6 +326,8 @@ td.neg{ color: var(--rose); }
 
 /* ===== RANKING LIST ===== */
 .rank-list{ display:flex; flex-direction:column; gap:10px; }
+.rank-grid .panel{ display:flex; flex-direction:column; }
+.rank-grid .rank-list{ flex:1 1 auto; justify-content:flex-start; }
 .rank-item{ display:grid; grid-template-columns: 18px 1fr auto; gap:12px; align-items:center; }
 .rank-num{ font-family:var(--mono); font-size:11px; color:var(--paper-faint); }
 .rank-name{ font-size:13px; color:var(--paper); }
@@ -348,7 +352,9 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
 /* ===== TOP PIE CHARTS ===== */
 .pie-card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
 .pie-card-title{ font-family: var(--serif); font-size: 16px; font-weight:600; color: var(--paper); }
-.pie-canvas-wrap{ position:relative; height:260px; }
+.pie-canvas-wrap{ position:relative; height:325px; }
+.pie-grid .panel{ height:420px; display:flex; flex-direction:column; box-sizing:border-box; overflow:hidden; }
+.pie-grid .pie-canvas-wrap{ flex:1 1 auto; height:auto; min-height:0; }
 .pie-canvas-wrap canvas{ cursor:pointer; }
 .pie-empty{ display:none; font-family:var(--sans); font-size:13px; color:var(--paper-faint); text-align:center; padding:60px 0; }
 
@@ -521,7 +527,7 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
 
     <!-- TOP PIE CHARTS -->
     <section class="section">
-      <div class="grid-2-even">
+      <div class="grid-2-even pie-grid">
         <div class="panel">
           <div class="pie-card-head">
             <div class="pie-card-title">Composición de ingresos</div>
@@ -559,18 +565,6 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
       </div>
     </div>
     <div class="kpi-row" id="kpi-row"></div>
-
-    <!-- OPERATIVO VS INVERSION -->
-    <section class="section">
-      <div class="section-head">
-        <div>
-          <div class="section-eyebrow">Negocio vs. capital</div>
-          <div class="section-title">Utilidad operativa vs. movimiento de inversión</div>
-        </div>
-        <div class="section-note">Separa el desempeño normal del negocio de las inversiones de capital del grupo (terrenos, bodegas, locales...), según la clasificación que mantienes en la hoja Activos.</div>
-      </div>
-      <div class="grid-2-even" id="op-inv-grid"></div>
-    </section>
 
     <!-- TENDENCIA POR LINEA DE NEGOCIO -->
     <section class="section">
@@ -677,7 +671,7 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
         </div>
         <div class="section-note">Razón social con mayor monto acumulado, separado por tipo de movimiento.</div>
       </div>
-      <div class="grid-2">
+      <div class="grid-2-even rank-grid">
         <div class="panel">
           <div style="font-family:var(--mono); font-size:11px; color:var(--teal-bright); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px;">Top ingresos</div>
           <div class="rank-list" id="rank-ingresos"></div>
@@ -699,6 +693,18 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
         <div class="section-note">Participación de cada línea de negocio dentro del ingreso total de la unidad.</div>
       </div>
       <div class="grid-3" id="composition-grid"></div>
+    </section>
+
+    <!-- OPERATIVO VS INVERSION -->
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-eyebrow">Negocio vs. capital</div>
+          <div class="section-title">Utilidad operativa vs. movimiento de inversión</div>
+        </div>
+        <div class="section-note">Separa el desempeño normal del negocio de las inversiones de capital del grupo (terrenos, bodegas, locales...), según la clasificación que mantienes en la hoja Activos.</div>
+      </div>
+      <div class="grid-2-even grid-2-even-balanced" id="op-inv-grid"></div>
     </section>
 
   </div>
@@ -741,7 +747,7 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
 
     <!-- TOP PIE CHARTS -->
     <section class="section">
-      <div class="grid-2-even">
+      <div class="grid-2-even pie-grid">
         <div class="panel">
           <div class="pie-card-head">
             <div class="pie-card-title">Composición de ingresos</div>
@@ -888,7 +894,7 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
         </div>
         <div class="section-note">Razón social con mayor monto acumulado, separado por tipo de movimiento.</div>
       </div>
-      <div class="grid-2">
+      <div class="grid-2-even rank-grid">
         <div class="panel">
           <div style="font-family:var(--mono); font-size:11px; color:var(--teal-bright); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px;">Top ingresos</div>
           <div class="rank-list" id="rank-ingresos-fe"></div>
@@ -1557,13 +1563,13 @@ function clasificacionDe(tipo){
 function esInversion(row){ return clasificacionDe(row.categoria) === 'INVERSION'; }
 
 const COLORS = {
-  Padel: '#00b368',
-  Ruslan: '#0066ff',
-  Matma: '#8b2fd6',
-  Tekwa: '#ff6a00',
-  Movilidad: '#e8112d',
+  Padel: '#2f7d5c',
+  Ruslan: '#3b5f96',
+  Matma: '#7a5a94',
+  Tekwa: '#b8703a',
+  Movilidad: '#a8455a',
 };
-const COLOR_FALLBACK = ['#00b368','#0066ff','#8b2fd6','#ff6a00','#e8112d','#d4a300'];
+const COLOR_FALLBACK = ['#2f7d5c','#3b5f96','#7a5a94','#b8703a','#a8455a','#a8862f'];
 function colorFor(name, idx){ return COLORS[name] || COLOR_FALLBACK[idx % COLOR_FALLBACK.length]; }
 
 const state = {
@@ -1714,8 +1720,8 @@ function refrescarBotonesFiltroGlobal(){
 }
 
 // ===================== KPI ROW =====================
-function empresasReportandoEnMes(mes){
-  return new Set(getAllData().filter(r=>r.mes===mes).map(r=>r.empresa));
+function empresasReportandoEnMes(mes, anio){
+  return new Set(getAllData().filter(r=>r.mes===mes && (!anio || getAnioDeFila(r)===anio)).map(r=>r.empresa));
 }
 
 const kpiCompareState = { modo: 'mes' };
@@ -1741,42 +1747,73 @@ function renderKPIs(){
   const utilidad = ingreso - egreso;
   const margen = ingreso !== 0 ? (utilidad/ingreso*100) : 0;
 
-  const baseRows = excluirActivosSiAplica(getAllData()).filter(d=> state.empresas.length === 0 || state.empresas.includes(d.empresa));
-  const mesesPresentes = MESES_ORDEN.filter(m => baseRows.some(r=>r.mes===m));
+  // baseRows respeta el filtro de empresa Y de año — de aquí sale el "periodo actual" y la
+  // comparación "vs mes anterior" (que debe quedarse dentro del mismo año seleccionado).
+  const baseRows = excluirActivosSiAplica(getAllData()).filter(d=>
+    (state.empresas.length === 0 || state.empresas.includes(d.empresa)) &&
+    (state.anios.length === 0 || state.anios.includes(getAnioDeFila(d)))
+  );
+  const periodos = getPeriodosOrdenados(baseRows);
 
-  // Determina cuál es el "mes actual" de referencia: si el usuario eligió exactamente un mes,
-  // se usa ese; si no eligió ninguno (o varios), se usa el último mes con datos disponibles.
-  let mesActual = null;
-  if(state.meses.length === 1) mesActual = state.meses[0];
-  else if(state.meses.length === 0 && mesesPresentes.length) mesActual = mesesPresentes[mesesPresentes.length-1];
+  // Para "vs mismo mes año anterior" se necesita ver TODOS los años (sin el filtro de año) —
+  // si no, nunca habría un "año anterior" disponible al tener un solo año seleccionado.
+  const baseRowsTodosAnios = excluirActivosSiAplica(getAllData()).filter(d=> state.empresas.length === 0 || state.empresas.includes(d.empresa));
+
+  // Determina cuál es el "periodo actual" de referencia (año+mes real, no solo el nombre): si
+  // el usuario eligió exactamente un mes, se usa el más reciente con ese nombre. Si no eligió
+  // ninguno: con una sola empresa filtrada, se usa el último periodo con datos de ESA empresa;
+  // con varias (o ninguna, es decir "todas"), se usa el último periodo en que TODAS las
+  // empresas relevantes ya tienen movimientos capturados — para no comparar contra un mes con
+  // captura todavía incompleta.
+  let periodoActual = null;
+  if(state.meses.length === 1){
+    const candidatos = periodos.filter(p => p.mes === state.meses[0]);
+    periodoActual = candidatos.length ? candidatos[candidatos.length-1] : null;
+  } else if(state.meses.length === 0 && periodos.length){
+    if(state.empresas.length === 1){
+      periodoActual = periodos[periodos.length-1];
+    } else {
+      const empresasRelevantes = state.empresas.length ? state.empresas : getEmpresas();
+      for(let i = periodos.length - 1; i >= 0; i--){
+        const p = periodos[i];
+        const reportando = empresasReportandoEnMes(p.mes, p.anio);
+        if(empresasRelevantes.every(e => reportando.has(e))){ periodoActual = p; break; }
+      }
+      if(!periodoActual) periodoActual = periodos[periodos.length-1]; // respaldo si nunca hay cobertura completa
+    }
+  }
 
   let deltaIngreso = null, deltaEgreso = null, deltaUtilidad = null, deltaMargen = null;
   let coberturaIncompleta = false, etiquetaComparativo = '', sinDatoAnioAnterior = false;
 
-  if(mesActual){
-    let mesComparar = null;
+  if(periodoActual){
+    let periodoComparar = null;
+    let rowsFuenteComparativo = baseRows;
     if(kpiCompareState.modo === 'mes'){
-      const idx = mesesPresentes.indexOf(mesActual);
-      mesComparar = idx > 0 ? mesesPresentes[idx-1] : null;
+      const idx = periodos.findIndex(p => p.mes===periodoActual.mes && p.anio===periodoActual.anio);
+      periodoComparar = idx > 0 ? periodos[idx-1] : null;
       etiquetaComparativo = 'vs. mes anterior';
     } else {
-      // "Mismo mes, año anterior": como hoy todo el historial vive en un único año (ver nota
-      // del selector de Año), todavía no existe un mes de un año distinto para comparar.
-      mesComparar = null;
-      sinDatoAnioAnterior = true;
+      // "Mismo mes, año anterior" — usa el histórico completo (sin el filtro de Año), porque
+      // si no, el año anterior nunca aparecería al tener un solo año seleccionado.
+      const anioAnteriorNum = (parseInt(periodoActual.anio,10) - 1).toString();
+      const todosPeriodos = getPeriodosOrdenados(baseRowsTodosAnios);
+      periodoComparar = todosPeriodos.find(p => p.mes === periodoActual.mes && p.anio === anioAnteriorNum) || null;
+      sinDatoAnioAnterior = !periodoComparar;
+      rowsFuenteComparativo = baseRowsTodosAnios;
       etiquetaComparativo = 'vs. mismo mes año anterior';
     }
 
-    if(mesComparar){
+    if(periodoComparar){
       if(state.empresas.length === 0){
-        const empActual = empresasReportandoEnMes(mesActual);
-        const empPrev = empresasReportandoEnMes(mesComparar);
+        const empActual = empresasReportandoEnMes(periodoActual.mes, periodoActual.anio);
+        const empPrev = empresasReportandoEnMes(periodoComparar.mes, periodoComparar.anio);
         if(empActual.size !== empPrev.size || [...empPrev].some(e=>!empActual.has(e))){
           coberturaIncompleta = true;
         }
       }
-      const actualRows = baseRows.filter(r=>r.mes===mesActual);
-      const compRows = baseRows.filter(r=>r.mes===mesComparar);
+      const actualRows = rowsFuenteComparativo.filter(r=>r.mes===periodoActual.mes && getAnioDeFila(r)===periodoActual.anio);
+      const compRows = rowsFuenteComparativo.filter(r=>r.mes===periodoComparar.mes && getAnioDeFila(r)===periodoComparar.anio);
       const li = sumBy(actualRows,'INGRESO'), le = sumBy(actualRows,'EGRESO');
       const pi = sumBy(compRows,'INGRESO'), pe = sumBy(compRows,'EGRESO');
       const lu = li-le, pu = pi-pe;
@@ -1801,24 +1838,27 @@ function renderKPIs(){
     ? `<div style="grid-column:1/-1; font-family:var(--mono); font-size:11px; color:var(--gold); background:rgba(92,138,0,0.07); border:1px solid rgba(92,138,0,0.25); border-radius:4px; padding:8px 14px; margin-top:-2px;">⚠ El mes comparado no tiene registros de todas las empresas todavía — la variación puede verse artificialmente más baja por falta de captura, no por desempeño real.</div>`
     : '';
 
+  const refMesTxt = periodoActual ? (periodoActual.mes + ' ' + periodoActual.anio) : '';
+  const refMesHtml = refMesTxt ? `<span class="kpi-ref-mes">${refMesTxt}</span>` : '';
+
   document.getElementById('kpi-row').innerHTML = `
     <div class="kpi k-ingreso">
-      <div class="kpi-label">Ingreso total</div>
+      <div class="kpi-label">Ingreso total ${refMesHtml}</div>
       <div class="kpi-value">${fmtMoney(ingreso)}</div>
       ${deltaHtml(deltaIngreso, etiquetaComparativo)}
     </div>
     <div class="kpi k-egreso">
-      <div class="kpi-label">Egreso total</div>
+      <div class="kpi-label">Egreso total ${refMesHtml}</div>
       <div class="kpi-value">${fmtMoney(egreso)}</div>
       ${deltaHtml(deltaEgreso, etiquetaComparativo, true)}
     </div>
     <div class="kpi k-utilidad">
-      <div class="kpi-label">Utilidad (Ingreso − Egreso)</div>
+      <div class="kpi-label">Utilidad (Ingreso − Egreso) ${refMesHtml}</div>
       <div class="kpi-value ${utilidad<0?'neg':''}">${fmtMoney(utilidad)}</div>
       ${deltaHtml(deltaUtilidad, etiquetaComparativo)}
     </div>
     <div class="kpi k-margen">
-      <div class="kpi-label">Margen sobre ingreso</div>
+      <div class="kpi-label">Margen sobre ingreso ${refMesHtml}</div>
       <div class="kpi-value ${margen<0?'neg':''}">${margen.toFixed(1)}%</div>
       ${deltaHtml(deltaMargen, etiquetaComparativo.replace('vs.', 'pts vs.'))}
     </div>
@@ -1905,71 +1945,156 @@ function colorConOpacidad(color, opacidad){
   return hexConOpacidad(color, opacidad);
 }
 
+// Al dar clic en un rubro de "Evolución mensual" se AÍSLA (guardado por canvasId, un solo
+// rubro a la vez). Con el rubro ya aislado, el siguiente clic sobre la gráfica te lleva a
+// Movimientos filtrado — es un flujo de dos pasos: 1) aislar, 2) ver el detalle.
+const _rubroFiltroEvolucion = {};
+
+// Ingreso y Egreso del MISMO rubro comparten el color base, pero con tonalidad distinta
+// (oscuro = ingreso, claro = egreso) para poder distinguirlos de un vistazo.
+function variantesDeColorRubro(hexBase){
+  const r = parseInt(hexBase.slice(1,3),16), g = parseInt(hexBase.slice(3,5),16), b = parseInt(hexBase.slice(5,7),16);
+  const ajustar = (factor) => {
+    const cap = (v)=>Math.max(0,Math.min(255,Math.round(v*factor)));
+    return `rgb(${cap(r)},${cap(g)},${cap(b)})`;
+  };
+  return { ingreso: ajustar(0.72), egreso: ajustar(1.4) };
+}
+
+function actualizarBarraRubroEvolucion(canvasId){
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  let barra = document.getElementById(canvasId + '-rubro-bar');
+  if(!barra){
+    barra = document.createElement('div');
+    barra.id = canvasId + '-rubro-bar';
+    barra.style.cssText = 'font-family:var(--sans); font-size:12px; color:var(--paper-dim); margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;';
+    canvas.insertAdjacentElement('afterend', barra);
+  }
+  const rubro = _rubroFiltroEvolucion[canvasId];
+  if(!rubro){
+    barra.innerHTML = '<span style="color:var(--paper-faint); font-size:11.5px;">Da clic en un rubro de la gráfica para aislarlo (se muestra su ingreso y egreso juntos, mismo color en distinta tonalidad). Con el rubro aislado, el siguiente clic te lleva al detalle en Movimientos.</span>';
+    return;
+  }
+  barra.innerHTML = `<span>Mostrando: <b>${displayCategoria(rubro)}</b> — da clic en la gráfica para ver el detalle en Movimientos</span>
+    <button id="${canvasId}-rubro-clear" style="font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--rose); background:none; border:1px solid rgba(224,32,60,0.3); border-radius:14px; padding:4px 10px; cursor:pointer;">✕ Borrar filtro</button>`;
+  document.getElementById(canvasId+'-rubro-clear').addEventListener('click', ()=>{
+    delete _rubroFiltroEvolucion[canvasId];
+    renderEvolucion(canvasId);
+  });
+}
+
 const _chartsEvolucion = {}; // registro de instancias por canvasId (para reutilizar la misma gráfica en 3 pestañas)
 function renderEvolucion(canvasId){
   canvasId = canvasId || 'chart-evolucion';
   const ctx = document.getElementById(canvasId);
   if(!ctx) return;
 
-  // Siempre recorre TODOS los meses disponibles (la gráfica es la tendencia completa), filtrando
-  // solo por empresa. Si el usuario tiene uno o varios meses seleccionados en el filtro general
-  // de arriba, esos meses se resaltan visualmente (el resto se atenúa) en vez de ocultar el resto.
-  const baseRows = excluirActivosSiAplica(getAllData()).filter(d=> state.empresas.length === 0 || state.empresas.includes(d.empresa));
-  const meses = MESES_ORDEN.filter(m=>baseRows.some(r=>r.mes===m));
+  // Filtra por empresa Y por año (si elegiste alguno). Si el usuario tiene uno o varios meses
+  // seleccionados en el filtro general de arriba, esos meses se resaltan visualmente (el resto
+  // se atenúa) en vez de ocultar el resto — pero el año sí filtra de verdad, no solo resalta.
+  const baseRows = excluirActivosSiAplica(getAllData()).filter(d=>
+    (state.empresas.length === 0 || state.empresas.includes(d.empresa)) &&
+    (state.anios.length === 0 || state.anios.includes(getAnioDeFila(d)))
+  );
+  // Periodos reales (año+mes) en orden cronológico — así, si hay varios años, Enero 2025 y
+  // Enero 2026 aparecen como barras separadas en su lugar correcto, no mezcladas en una sola.
+  const periodos = getPeriodosOrdenados(baseRows);
+  const labels = periodos.map(labelPeriodo);
   const mesesResaltados = state.meses.length ? state.meses : null;
   const opacidadDe = (mes) => (mesesResaltados && !mesesResaltados.includes(mes)) ? 0.28 : 1;
 
-  // Categorías presentes en ingreso y en egreso (cada bloque con su propio set de tonalidades).
-  const categoriasIngreso = [...new Set(baseRows.filter(r=>r.tipo_mov==='INGRESO').map(r=>r.categoria))];
-  const categoriasEgreso = [...new Set(baseRows.filter(r=>r.tipo_mov==='EGRESO').map(r=>r.categoria))];
-  const tonosIngreso = tonalidadesDe('#00875f', categoriasIngreso.length);
-  const tonosEgreso = tonalidadesDe('#e0203c', categoriasEgreso.length);
+  const rubroAislado = _rubroFiltroEvolucion[canvasId] || null;
+  const catColorMap = getCategoriaColorMap();
+  let datasetsIngreso, datasetsEgreso;
 
-  const datasetsIngreso = categoriasIngreso.map((cat,i) => {
-    const filas = meses.map(m => baseRows.filter(r=>r.mes===m && r.tipo_mov==='INGRESO' && r.categoria===cat));
-    return {
-      type:'bar', label: displayCategoria(cat), stack:'ingreso', _tipoMov:'INGRESO', _categoria: cat,
-      _counts: filas.map(f=>f.length),
-      data: filas.map(f=>f.reduce((a,r)=>a+r.monto,0)),
-      borderColor: tonosIngreso[i], borderWidth:0, order:2,
-      backgroundColor: meses.map(m => hexConOpacidad(tonosIngreso[i], opacidadDe(m))),
-    };
-  });
-  const datasetsEgreso = categoriasEgreso.map((cat,i) => {
-    const filas = meses.map(m => baseRows.filter(r=>r.mes===m && r.tipo_mov==='EGRESO' && r.categoria===cat));
-    return {
-      type:'bar', label: displayCategoria(cat), stack:'egreso', _tipoMov:'EGRESO', _categoria: cat,
-      _counts: filas.map(f=>f.length),
-      data: filas.map(f=>f.reduce((a,r)=>a+r.monto,0)),
-      borderColor: tonosEgreso[i], borderWidth:0, order:2,
-      backgroundColor: meses.map(m => hexConOpacidad(tonosEgreso[i], opacidadDe(m))),
-    };
-  });
+  if(!rubroAislado){
+    // Vista normal: todas las categorías, agrupadas por Ingreso/Egreso con su propia paleta.
+    const categoriasIngreso = [...new Set(baseRows.filter(r=>r.tipo_mov==='INGRESO').map(r=>r.categoria))];
+    const categoriasEgreso = [...new Set(baseRows.filter(r=>r.tipo_mov==='EGRESO').map(r=>r.categoria))];
+    const tonosIngreso = tonalidadesDe('#00875f', categoriasIngreso.length);
+    const tonosEgreso = tonalidadesDe('#e0203c', categoriasEgreso.length);
+
+    datasetsIngreso = categoriasIngreso.map((cat,i) => {
+      const filas = periodos.map(p => baseRows.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio && r.tipo_mov==='INGRESO' && r.categoria===cat));
+      return {
+        type:'bar', label: displayCategoria(cat), stack:'ingreso', _tipoMov:'INGRESO', _categoria: cat,
+        _counts: filas.map(f=>f.length),
+        data: filas.map(f=>f.reduce((a,r)=>a+r.monto,0)),
+        borderColor: tonosIngreso[i], borderWidth:0, order:2,
+        backgroundColor: periodos.map(p => hexConOpacidad(tonosIngreso[i], opacidadDe(p.mes))),
+      };
+    });
+    datasetsEgreso = categoriasEgreso.map((cat,i) => {
+      const filas = periodos.map(p => baseRows.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio && r.tipo_mov==='EGRESO' && r.categoria===cat));
+      return {
+        type:'bar', label: displayCategoria(cat), stack:'egreso', _tipoMov:'EGRESO', _categoria: cat,
+        _counts: filas.map(f=>f.length),
+        data: filas.map(f=>f.reduce((a,r)=>a+r.monto,0)),
+        borderColor: tonosEgreso[i], borderWidth:0, order:2,
+        backgroundColor: periodos.map(p => hexConOpacidad(tonosEgreso[i], opacidadDe(p.mes))),
+      };
+    });
+  } else {
+    // Vista aislada: solo el rubro en que se dio clic — Ingreso (tono oscuro) y Egreso (tono
+    // claro) del MISMO color, para comparar de un vistazo. El siguiente clic navega al detalle.
+    const cat = rubroAislado;
+    const base = catColorMap[cat] || '#5a5a66';
+    const tonos = variantesDeColorRubro(base);
+    const filasIng = periodos.map(p => baseRows.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio && r.tipo_mov==='INGRESO' && r.categoria===cat));
+    const filasEgr = periodos.map(p => baseRows.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio && r.tipo_mov==='EGRESO' && r.categoria===cat));
+    datasetsIngreso = [{
+      type:'bar', label: displayCategoria(cat) + ' — Ingreso', stack:'ingreso', _tipoMov:'INGRESO', _categoria: cat,
+      _counts: filasIng.map(f=>f.length),
+      data: filasIng.map(f=>f.reduce((a,r)=>a+r.monto,0)),
+      borderColor: tonos.ingreso, borderWidth:0, order:2,
+      backgroundColor: periodos.map(p => colorConOpacidad(tonos.ingreso, opacidadDe(p.mes))),
+    }];
+    datasetsEgreso = [{
+      type:'bar', label: displayCategoria(cat) + ' — Egreso', stack:'egreso', _tipoMov:'EGRESO', _categoria: cat,
+      _counts: filasEgr.map(f=>f.length),
+      data: filasEgr.map(f=>f.reduce((a,r)=>a+r.monto,0)),
+      borderColor: tonos.egreso, borderWidth:0, order:2,
+      backgroundColor: periodos.map(p => colorConOpacidad(tonos.egreso, opacidadDe(p.mes))),
+    }];
+  }
   // La utilidad se dibuja sobre el eje secundario para que no se vea aplastada por las barras apiladas.
-  const utilidad = meses.map(m => sumBy(baseRows.filter(r=>r.mes===m),'INGRESO') - sumBy(baseRows.filter(r=>r.mes===m),'EGRESO'));
+  const utilidad = periodos.map(p => {
+    const rowsP = baseRows.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio);
+    return sumBy(rowsP,'INGRESO') - sumBy(rowsP,'EGRESO');
+  });
   const datasetUtilidad = {
     type:'line', label:'Utilidad', data: utilidad, borderColor:'#cc4e0a', backgroundColor:'#cc4e0a', tension:0.3, borderWidth:2.5,
-    pointRadius: meses.map(m => mesesResaltados ? (mesesResaltados.includes(m) ? 5 : 2) : 3),
+    pointRadius: periodos.map(p => mesesResaltados ? (mesesResaltados.includes(p.mes) ? 5 : 2) : 3),
     pointBackgroundColor:'#cc4e0a', order:1, yAxisID:'y',
   };
 
   if(_chartsEvolucion[canvasId]) _chartsEvolucion[canvasId].destroy();
   const chart = new Chart(ctx, {
-    data: { labels: meses, datasets: [...datasetsIngreso, ...datasetsEgreso, datasetUtilidad] },
+    data: { labels, datasets: [...datasetsIngreso, ...datasetsEgreso, datasetUtilidad] },
     options: {
       responsive:true,
       interaction:{ mode:'nearest', axis:'xy', intersect:true },
       onClick: (evt, elements) => {
         if(!elements.length) return;
         const ds = chart.data.datasets[elements[0].datasetIndex];
-        if(!ds._tipoMov) return; // clic sobre la línea de Utilidad: no aplica un único tipo de movimiento
-        const mes = meses[elements[0].index];
-        goToMovimientosFiltrado({
-          empresa: state.empresas.length === 1 ? state.empresas[0] : '',
-          categoria: ds._categoria,
-          tipoMov: ds._tipoMov,
-          mes,
-        });
+        if(!ds._tipoMov) return; // clic sobre la línea de Utilidad: no aplica a un rubro específico
+        const yaAislado = _rubroFiltroEvolucion[canvasId];
+        if(!yaAislado){
+          // Paso 1: nada aislado todavía -> aísla este rubro.
+          _rubroFiltroEvolucion[canvasId] = ds._categoria;
+          renderEvolucion(canvasId);
+        } else {
+          // Paso 2: ya está aislado -> este clic te lleva al detalle en Movimientos.
+          const periodo = periodos[elements[0].index];
+          goToMovimientosFiltrado({
+            empresa: state.empresas.length === 1 ? state.empresas[0] : '',
+            categoria: ds._categoria,
+            tipoMov: ds._tipoMov,
+            mes: periodo.mes,
+            anio: periodo.anio,
+          });
+        }
       },
       onHover: (evt, elements) => {
         evt.native.target.style.cursor = elements.length ? 'pointer' : 'default';
@@ -1986,8 +2111,10 @@ function renderEvolucion(canvasId){
               if(!ctx.dataset._tipoMov) return `${fmtMoney(ctx.parsed.y)}`;
               const n = ctx.dataset._counts ? ctx.dataset._counts[ctx.dataIndex] : null;
               const tipoTxt = ctx.dataset._tipoMov === 'INGRESO' ? 'Ingreso' : 'Egreso';
+              const yaAislado = !!_rubroFiltroEvolucion[canvasId];
               const lineas = [`${tipoTxt}: ${fmtMoney(ctx.parsed.y)}`];
-              if(n != null) lineas.push(`${n} movimiento${n===1?'':'s'} · clic para ver el detalle`);
+              if(n != null) lineas.push(`${n} movimiento${n===1?'':'s'}`);
+              lineas.push(yaAislado ? 'clic para ver el detalle en Movimientos' : 'clic para aislar este rubro (ingreso + egreso)');
               return lineas;
             }
           } }
@@ -1998,6 +2125,7 @@ function renderEvolucion(canvasId){
       }
     }
   });
+  actualizarBarraRubroEvolucion(canvasId);
   _chartsEvolucion[canvasId] = chart;
 }
 
@@ -2079,8 +2207,12 @@ function renderEvolucionAcumulada(canvasId){
   if(_chartsEvolucion[canvasId]) _chartsEvolucion[canvasId].destroy();
   if(periodos.length === 0) return;
 
+  const vista = filtrarPeriodosPorAnioDisplay(periodos, labels, [...datasetsIngreso, datasetUtilidadesArrastre, ...datasetsEgreso, datasetPerdidasArrastre, datasetUtilidad]);
+  if(vista.periodos.length === 0) return;
+  const periodosVista = vista.periodos;
+
   const chart = new Chart(ctx, {
-    data: { labels, datasets: [...datasetsIngreso, datasetUtilidadesArrastre, ...datasetsEgreso, datasetPerdidasArrastre, datasetUtilidad] },
+    data: { labels: vista.labels, datasets: vista.datasetsConData },
     options: {
       responsive:true,
       interaction:{ mode:'nearest', axis:'xy', intersect:true },
@@ -2088,12 +2220,13 @@ function renderEvolucionAcumulada(canvasId){
         if(!elements.length) return;
         const ds = chart.data.datasets[elements[0].datasetIndex];
         if(!ds._tipoMov || ds._esArrastre) return; // línea de Utilidad o bloques de arrastre: no hay un único mes/tipo al que saltar
-        const periodo = periodos[elements[0].index];
+        const periodo = periodosVista[elements[0].index];
         goToMovimientosFiltrado({
           empresa: state.empresas.length === 1 ? state.empresas[0] : '',
           categoria: ds._categoria,
           tipoMov: ds._tipoMov,
           mes: periodo.mes,
+          anio: periodo.anio,
         });
       },
       onHover: (evt, elements) => {
@@ -2247,6 +2380,20 @@ function escaparHtmlSimple(s){
   return d.innerHTML;
 }
 
+// Para gráficas que ACUMULAN (Flujo de Efectivo): el cálculo siempre necesita TODO el
+// histórico disponible (si no, el acumulado arrancaría mal desde el año filtrado). Esta
+// función filtra solo lo que se MUESTRA al final, después de ya haber calculado el acumulado
+// real con todos los datos.
+function filtrarPeriodosPorAnioDisplay(periodos, labels, datasetsConData){
+  if(state.anios.length === 0) return { periodos, labels, datasetsConData };
+  const mask = periodos.map(p => state.anios.includes(p.anio));
+  return {
+    periodos: periodos.filter((_,i)=>mask[i]),
+    labels: labels.filter((_,i)=>mask[i]),
+    datasetsConData: datasetsConData.map(ds => ({ ...ds, data: ds.data.filter((_,i)=>mask[i]) })),
+  };
+}
+
 function renderAcumulado(){
   const ctx = document.getElementById('chart-acumulado');
   if(!ctx) return;
@@ -2284,9 +2431,12 @@ function renderAcumulado(){
   if(chartAcumulado) chartAcumulado.destroy();
   if(periodos.length === 0) return;
 
+  const vista = filtrarPeriodosPorAnioDisplay(periodos, labels, datasets);
+  if(vista.periodos.length === 0) return;
+
   chartAcumulado = new Chart(ctx, {
     type:'line',
-    data:{ labels, datasets },
+    data:{ labels: vista.labels, datasets: vista.datasetsConData },
     options:{
       responsive:true,
       interaction:{ mode:'nearest', axis:'xy', intersect:true },
@@ -2364,7 +2514,9 @@ function calcularLineasER(rows){
 function renderEstadoResultados(){
   renderEvolucion('chart-evolucion-er');
   const table = document.getElementById('er-table');
-  const baseRows = excluirActivosSiAplica(getAllData()).filter(d => empresaEnFiltro(d.empresa));
+  const baseRows = excluirActivosSiAplica(getAllData()).filter(d =>
+    empresaEnFiltro(d.empresa) && (state.anios.length === 0 || state.anios.includes(getAnioDeFila(d)))
+  );
   const periodos = getPeriodosOrdenados(baseRows);
 
   if(periodos.length === 0){
@@ -2422,66 +2574,135 @@ initERToggle();
 // ===================== TENDENCIA POR LÍNEA DE NEGOCIO (CATEGORÍA) =====================
 const tendenciaState = { tipoMov: 'INGRESO' };
 let chartTendenciaCategoria = null;
+// Un solo rubro a la vez: se aísla dando clic en la LEYENDA (arriba de la gráfica), no en la
+// línea directa. Con el rubro ya aislado, el siguiente clic sobre la gráfica (en cualquier mes)
+// te lleva al detalle en Movimientos.
+const _rubroFiltroTendencia = {};
+
+function actualizarBarraRubroTendencia(canvasId){
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  let barra = document.getElementById(canvasId + '-rubro-bar');
+  if(!barra){
+    barra = document.createElement('div');
+    barra.id = canvasId + '-rubro-bar';
+    barra.style.cssText = 'font-family:var(--sans); font-size:12px; color:var(--paper-dim); margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;';
+    canvas.insertAdjacentElement('afterend', barra);
+  }
+  const rubro = _rubroFiltroTendencia[canvasId];
+  if(!rubro){
+    barra.innerHTML = '<span style="color:var(--paper-faint); font-size:11.5px;">Da clic en un nombre de la leyenda de arriba para aislar ese rubro (se muestra su ingreso y egreso juntos, mismo color en distinta tonalidad, sin importar el toggle). Con el rubro aislado, el siguiente clic en la gráfica te lleva al detalle en Movimientos.</span>';
+    return;
+  }
+  barra.innerHTML = `<span>Mostrando: <b>${displayCategoria(rubro)}</b> — da clic en la gráfica para ver el detalle en Movimientos</span>
+    <button id="${canvasId}-rubro-clear-t" style="font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--rose); background:none; border:1px solid rgba(224,32,60,0.3); border-radius:14px; padding:4px 10px; cursor:pointer;">✕ Borrar filtro</button>`;
+  document.getElementById(canvasId+'-rubro-clear-t').addEventListener('click', ()=>{
+    delete _rubroFiltroTendencia[canvasId];
+    renderTendenciaCategoria();
+  });
+}
 
 function renderTendenciaCategoria(){
-  const ctx = document.getElementById('chart-tendencia-categoria');
+  const canvasId = 'chart-tendencia-categoria';
+  const ctx = document.getElementById(canvasId);
   if(!ctx) return;
 
-  // Usa los mismos filtros de empresa y año que el resto de la pestaña, pero siempre recorre
-  // TODOS los meses disponibles (la gráfica es la línea de tiempo completa). Si el usuario tiene
-  // uno o varios meses seleccionados en el filtro general de arriba, esos meses se resaltan con
-  // puntos más grandes en la línea (el resto se atenúa) en vez de ocultar el resto — mismo
-  // comportamiento que ya usa "Evolución mensual".
-  const baseRows = excluirActivosSiAplica(getAllData()).filter(d=>
-    (state.empresas.length === 0 || state.empresas.includes(d.empresa)) &&
-    (state.anios.length === 0 || state.anios.includes(getAnioDeFila(d))) &&
-    d.tipo_mov === tendenciaState.tipoMov
-  );
-  const meses = MESES_ORDEN.filter(m => baseRows.some(r=>r.mes===m));
-  const categorias = [...new Set(baseRows.map(r=>r.categoria))];
-  const mesesResaltados = state.meses.length ? state.meses : null;
-
+  const rubroAislado = _rubroFiltroTendencia[canvasId] || null;
   const catColorMap = getCategoriaColorMap();
-  const datasets = categorias.map((cat, i) => {
-    const colorBase = catColorMap[cat] || CATEGORIA_PALETTE[i % CATEGORIA_PALETTE.length];
-    return {
-      label: cat,
-      data: meses.map(m => baseRows.filter(r=>r.mes===m && r.categoria===cat).reduce((a,r)=>a+r.monto,0)),
-      borderColor: colorBase,
-      backgroundColor: colorBase,
+  const mesesResaltados = state.meses.length ? state.meses : null;
+  let baseRows, periodos, labels, datasets;
+
+  if(!rubroAislado){
+    // Vista normal: respeta el toggle Ingreso/Egreso, una línea por categoría.
+    baseRows = excluirActivosSiAplica(getAllData()).filter(d=>
+      (state.empresas.length === 0 || state.empresas.includes(d.empresa)) &&
+      (state.anios.length === 0 || state.anios.includes(getAnioDeFila(d))) &&
+      d.tipo_mov === tendenciaState.tipoMov
+    );
+    periodos = getPeriodosOrdenados(baseRows);
+    labels = periodos.map(labelPeriodo);
+    const categorias = [...new Set(baseRows.map(r=>r.categoria))];
+
+    datasets = categorias.map((cat, i) => {
+      const colorBase = catColorMap[cat] || CATEGORIA_PALETTE[i % CATEGORIA_PALETTE.length];
+      return {
+        label: cat, _categoria: cat, _tipoMov: tendenciaState.tipoMov,
+        data: periodos.map(p => baseRows.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio && r.categoria===cat).reduce((a,r)=>a+r.monto,0)),
+        borderColor: colorBase,
+        backgroundColor: colorBase,
+        borderWidth: 2, tension: 0.3, fill: false,
+        pointRadius: periodos.map(p => mesesResaltados ? (mesesResaltados.includes(p.mes) ? 5 : 2) : 3),
+        pointBackgroundColor: periodos.map(p => mesesResaltados && !mesesResaltados.includes(p.mes) ? colorConOpacidad(colorBase, 0.35) : colorBase),
+      };
+    });
+  } else {
+    // Vista aislada: ignora el toggle Ingreso/Egreso — muestra AMBOS del rubro aislado, mismo
+    // color base con tonalidad distinta (oscuro=ingreso, claro=egreso).
+    const cat = rubroAislado;
+    baseRows = excluirActivosSiAplica(getAllData()).filter(d=>
+      (state.empresas.length === 0 || state.empresas.includes(d.empresa)) &&
+      (state.anios.length === 0 || state.anios.includes(getAnioDeFila(d)))
+    );
+    periodos = getPeriodosOrdenados(baseRows);
+    labels = periodos.map(labelPeriodo);
+
+    const base = catColorMap[cat] || '#5a5a66';
+    const tonos = variantesDeColorRubro(base);
+    datasets = [['INGRESO', tonos.ingreso, ' — Ingreso'], ['EGRESO', tonos.egreso, ' — Egreso']].map(([tipoMov, color, sufijo]) => ({
+      label: cat + sufijo, _categoria: cat, _tipoMov: tipoMov,
+      data: periodos.map(p => baseRows.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio && r.categoria===cat && r.tipo_mov===tipoMov).reduce((a,r)=>a+r.monto,0)),
+      borderColor: color, backgroundColor: color,
       borderWidth: 2, tension: 0.3, fill: false,
-      pointRadius: meses.map(m => mesesResaltados ? (mesesResaltados.includes(m) ? 5 : 2) : 3),
-      pointBackgroundColor: meses.map(m => mesesResaltados && !mesesResaltados.includes(m) ? colorConOpacidad(colorBase, 0.35) : colorBase),
-    };
-  });
+      pointRadius: periodos.map(p => mesesResaltados ? (mesesResaltados.includes(p.mes) ? 5 : 2) : 3),
+      pointBackgroundColor: periodos.map(p => mesesResaltados && !mesesResaltados.includes(p.mes) ? colorConOpacidad(color, 0.35) : color),
+    }));
+  }
 
   if(chartTendenciaCategoria) chartTendenciaCategoria.destroy();
-  if(meses.length === 0 || categorias.length === 0) return;
+  if(periodos.length === 0 || datasets.length === 0) return;
 
   chartTendenciaCategoria = new Chart(ctx, {
     type:'line',
-    data:{ labels: meses, datasets },
+    data:{ labels, datasets },
     options:{
       responsive:true,
       interaction:{ mode:'nearest', axis:'xy', intersect:true },
       onClick: (evt, elements) => {
         if(!elements.length) return;
+        // El clic directo en la gráfica solo navega — y solo cuando ya hay un rubro aislado
+        // (aislar se hace desde la leyenda, no desde la línea).
+        if(!_rubroFiltroTendencia[canvasId]) return;
         const ds = chartTendenciaCategoria.data.datasets[elements[0].datasetIndex];
-        const mes = meses[elements[0].index];
+        const periodo = periodos[elements[0].index];
         goToMovimientosFiltrado({
           empresa: state.empresas.length === 1 ? state.empresas[0] : '',
-          categoria: ds.label,
-          tipoMov: tendenciaState.tipoMov,
-          mes,
+          categoria: ds._categoria,
+          tipoMov: ds._tipoMov,
+          mes: periodo.mes,
+          anio: periodo.anio,
         });
       },
       onHover: (evt, elements) => {
-        evt.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+        evt.native.target.style.cursor = (elements.length && _rubroFiltroTendencia[canvasId]) ? 'pointer' : 'default';
       },
       plugins:{
-        legend:{ position:'top', align:'end', labels:{ color:'#15151a', font:{family:'Inter', size:11.5}, boxWidth:11, usePointStyle:true, pointStyle:'circle' } },
+        legend:{
+          position:'top', align:'end', labels:{ color:'#15151a', font:{family:'Inter', size:11.5}, boxWidth:11, usePointStyle:true, pointStyle:'circle' },
+          onClick: (evt, legendItem, legend) => {
+            // La leyenda es donde se aísla un rubro — no el comportamiento normal de
+            // Chart.js de ocultar la línea.
+            if(_rubroFiltroTendencia[canvasId]) return; // ya hay uno aislado: la leyenda no hace nada hasta que se borre el filtro
+            const ds = legend.chart.data.datasets[legendItem.datasetIndex];
+            _rubroFiltroTendencia[canvasId] = ds._categoria;
+            renderTendenciaCategoria();
+          }
+        },
         tooltip:{ backgroundColor:'#ffffff', borderColor:'rgba(30,26,20,0.16)', borderWidth:1, titleColor:'#15151a', bodyColor:'#15151a', padding:10,
-          callbacks:{ label:(ctx)=> `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)} · clic para ver detalle` } }
+          callbacks:{ label:(ctx)=>{
+            const yaAislado = !!_rubroFiltroTendencia[canvasId];
+            const hint = yaAislado ? 'clic para ver el detalle en Movimientos' : 'clic en la leyenda de arriba para aislar este rubro';
+            return `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)} · ${hint}`;
+          } } }
       },
       scales:{
         x:{ grid:{ color:'rgba(30,26,20,0.07)' }, ticks:{ color:'#5a5a66', font:{family:'IBM Plex Mono', size:11} } },
@@ -2489,6 +2710,7 @@ function renderTendenciaCategoria(){
       }
     }
   });
+  actualizarBarraRubroTendencia(canvasId);
 }
 
 function initTendenciaToggle(){
@@ -2574,7 +2796,10 @@ function renderEmpresasChartCore(canvasId, rankId, chartKey){
   if(!canvas) return;
   const EMPRESAS = getEmpresas();
   const empresasToShow = state.empresas.length ? state.empresas : EMPRESAS;
-  const rowsScope = excluirActivosSiAplica(getAllData()).filter(d => state.meses.length === 0 || state.meses.includes(d.mes));
+  const rowsScope = excluirActivosSiAplica(getAllData()).filter(d =>
+    (state.meses.length === 0 || state.meses.includes(d.mes)) &&
+    (state.anios.length === 0 || state.anios.includes(getAnioDeFila(d)))
+  );
   const data = empresasToShow.map(e=>{
     const rows = rowsScope.filter(r=>r.empresa===e);
     const ing = sumBy(rows,'INGRESO');
@@ -2624,7 +2849,7 @@ function renderEmpresasChartCore(canvasId, rankId, chartKey){
     const sorted = [...data].sort((a,b)=>b.margen-a.margen);
     const maxAbs = Math.max(...sorted.map(d=>Math.abs(d.margen)), 1);
     rankEl.innerHTML =
-      `<div style="font-family:var(--mono); font-size:11px; color:var(--gold); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px;">Margen por empresa</div>` +
+      `<div style="font-family:var(--mono); font-size:11px; color:var(--gold); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px;">Margen Neto</div>` +
       sorted.map((d,i)=>{
         const widthPct = Math.abs(d.margen)/maxAbs*100;
         const fillClass = d.margen>=0 ? 'teal' : '';
@@ -2835,13 +3060,13 @@ function crearPivotInstancia(sufijo){
     if(pivotState.periodo === 'acumulado'){
       table.innerHTML = tablaParaFilas(rowsBase, null);
     } else {
-      const mesesDisponibles = MESES_ORDEN.filter(m => rowsBase.some(r=>r.mes===m));
-      const meses = pivotState.meses.length ? mesesDisponibles.filter(m=>pivotState.meses.includes(m)) : mesesDisponibles;
+      const periodosDisponibles = getPeriodosOrdenados(rowsBase);
+      const periodosAMostrar = pivotState.meses.length ? periodosDisponibles.filter(p=>pivotState.meses.includes(p.mes)) : periodosDisponibles;
       let html = '';
-      meses.forEach(mes=>{
-        const mesRows = rowsBase.filter(r=>r.mes===mes);
+      periodosAMostrar.forEach(p=>{
+        const mesRows = rowsBase.filter(r=>r.mes===p.mes && getAnioDeFila(r)===p.anio);
         if(mesRows.length === 0) return;
-        html += tablaParaFilas(mesRows, mes);
+        html += tablaParaFilas(mesRows, labelPeriodo(p));
       });
       if(!html) html = '<tr><td class="capture-log-empty">Selecciona al menos un mes con datos.</td></tr>';
       table.innerHTML = html;
@@ -2868,16 +3093,18 @@ function renderVariacion(){
   const empresas = state.empresas.length ? state.empresas : EMPRESAS;
   let html = '';
   empresas.forEach(emp=>{
-    const empRows = excluirActivosSiAplica(getAllData()).filter(r=>r.empresa===emp);
-    const mesesPresentes = MESES_ORDEN.filter(m=>empRows.some(r=>r.mes===m));
-    if(mesesPresentes.length < 2){
+    const empRows = excluirActivosSiAplica(getAllData()).filter(r=>
+      r.empresa===emp && (state.anios.length === 0 || state.anios.includes(getAnioDeFila(r)))
+    );
+    const periodos = getPeriodosOrdenados(empRows);
+    if(periodos.length < 2){
       html += `<tr><td>${emp}</td><td colspan="4" style="text-align:center; color:var(--paper-faint);">Historial insuficiente para comparar</td></tr>`;
       return;
     }
-    const last = mesesPresentes[mesesPresentes.length-1];
-    const prev = mesesPresentes[mesesPresentes.length-2];
-    const prevRows = empRows.filter(r=>r.mes===prev);
-    const lastRows = empRows.filter(r=>r.mes===last);
+    const last = periodos[periodos.length-1];
+    const prev = periodos[periodos.length-2];
+    const prevRows = empRows.filter(r=>r.mes===prev.mes && getAnioDeFila(r)===prev.anio);
+    const lastRows = empRows.filter(r=>r.mes===last.mes && getAnioDeFila(r)===last.anio);
     const prevUtil = sumBy(prevRows,'INGRESO') - sumBy(prevRows,'EGRESO');
     const lastUtil = sumBy(lastRows,'INGRESO') - sumBy(lastRows,'EGRESO');
     const diff = lastUtil - prevUtil;
@@ -2899,8 +3126,8 @@ function renderVariacion(){
 
     html += `<tr>
       <td>${emp}</td>
-      <td>${prev}: ${fmtMoney(prevUtil)}</td>
-      <td>${last}: ${fmtMoney(lastUtil)}</td>
+      <td>${labelPeriodo(prev)}: ${fmtMoney(prevUtil)}</td>
+      <td>${labelPeriodo(last)}: ${fmtMoney(lastUtil)}</td>
       <td class="${cls}">${diff>=0?'+':''}${fmtMoney(diff)}</td>
       <td class="${cls}">${pctLabel}</td>
     </tr>`;
@@ -2950,22 +3177,41 @@ function renderCompositionInto(gridId, prefijo){
   const empresas = state.empresas.length ? state.empresas : EMPRESAS;
   const grid = document.getElementById(gridId);
   if(!grid) return;
+
+  // Mientras menos empresas queden en el filtro, más grande se ve cada tarjeta (menos columnas,
+  // canvas más alto, letra más grande) — y el bloque completo se centra en vez de quedarse
+  // pegado a la izquierda con espacio vacío al lado.
+  const cols = Math.max(1, Math.min(empresas.length, 3));
+  const alturaCanvas = cols === 1 ? 340 : (cols === 2 ? 250 : 180);
+  const tituloFont = cols === 1 ? 22 : (cols === 2 ? 19 : 16);
+  const anchoMax = cols === 1 ? '420px' : (cols === 2 ? '760px' : 'none');
+
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  grid.style.gap = '14px';
+  grid.style.maxWidth = anchoMax;
+  grid.style.margin = cols < 3 ? '0 auto' : '0';
+
   grid.innerHTML = empresas.map(e=>`
     <div class="panel">
-      <div style="font-family:var(--serif); font-size:16px; font-weight:600; margin-bottom:4px;">${e}</div>
+      <div style="font-family:var(--serif); font-size:${tituloFont}px; font-weight:600; margin-bottom:4px;">${e}</div>
       <div style="font-family:var(--mono); font-size:10.5px; color:var(--paper-faint); margin-bottom:12px;">Composición de ingreso</div>
-      <canvas id="${prefijo}${e}" height="180"></canvas>
+      <canvas id="${prefijo}${e}" height="${alturaCanvas}"></canvas>
     </div>
   `).join('');
 
   empresas.forEach((e,idx)=>{
-    const rows = excluirActivosSiAplica(getAllData()).filter(r=>r.empresa===e && r.tipo_mov==='INGRESO' && (state.meses.length === 0 || state.meses.includes(r.mes)));
+    const rows = excluirActivosSiAplica(getAllData()).filter(r=>
+      r.empresa===e && r.tipo_mov==='INGRESO' &&
+      (state.meses.length === 0 || state.meses.includes(r.mes)) &&
+      (state.anios.length === 0 || state.anios.includes(getAnioDeFila(r)))
+    );
     const map = {};
     rows.forEach(r=>{ map[r.categoria] = (map[r.categoria]||0) + r.monto; });
     const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
     const ctx = document.getElementById(`${prefijo}${e}`);
     if(!ctx) return;
-    const palette = ['#0066ff','#00b368','#ff6a00','#8b2fd6','#e8112d','#00b8d9','#d4a300','#ff3d8a'];
+    const palette = CATEGORIA_PALETTE;
     const chart = new Chart(ctx, {
       type:'doughnut',
       data:{
@@ -3004,7 +3250,7 @@ function renderComposition(){
 function renderMastheadMeta(){
   const all = getAllData();
   document.getElementById('meta-empresas').textContent = getEmpresas().length;
-  document.getElementById('meta-meses').textContent = MESES_ORDEN.filter(m=>all.some(r=>r.mes===m)).length;
+  document.getElementById('meta-meses').textContent = getPeriodosOrdenados(all).length;
   document.getElementById('meta-movs').textContent = all.length;
 }
 
@@ -3013,7 +3259,7 @@ const pieState = { ingresoModo: 'empresa', egresoModo: 'empresa' };
 let chartPieIngreso = null, chartPieEgreso = null;
 
 // Paleta amplia y sin repeticiones para subtipos (categorías de línea de negocio).
-const CATEGORIA_PALETTE = ['#0066ff','#00b368','#ff6a00','#8b2fd6','#e8112d','#00b8d9','#d4a300','#ff3d8a','#6b4cff','#2e8b57','#c2410c','#0891b2'];
+const CATEGORIA_PALETTE = ['#2f5fa8','#2f8f5b','#c2691f','#6b4c8a','#a8394a','#2f8fa3','#a8862f','#b8447a','#5c4ca8','#3d7a5c','#a05426','#2f7a94'];
 
 // Mapa global: una categoría (subtipo) siempre recibe el mismo color, sin importar si
 // aparece en el pie de ingresos o en el de egresos.
@@ -4300,17 +4546,18 @@ function initTabs(){
 
 // Llamado desde los pie charts de Flujos: lleva a la pestaña Movimientos ya
 // filtrada por la empresa/categoría/tipo de movimiento en la que se hizo clic.
-function goToMovimientosFiltrado({ empresa, categoria, tipoMov, mes, activo, soloOperativo }){
+function goToMovimientosFiltrado({ empresa, categoria, tipoMov, mes, anio, activo, soloOperativo }){
   movsState.search = '';
   movsState.categoria = categoria || '';
   movsState.tipoMov = tipoMov || '';
   movsState.activo = activo || '';
   movsState.soloOperativo = !!soloOperativo;
   movsState.page = 1;
-  // El filtro de empresa/mes ahora es el global de arriba de la página — se ajusta directo,
+  // El filtro de empresa/mes/año ahora es el global de arriba de la página — se ajusta directo,
   // así queda igual en las 5 pestañas, no solo en Movimientos.
   if(empresa) state.empresas = [empresa];
   if(mes) state.meses = Array.isArray(mes) ? [...mes] : [mes];
+  if(anio) state.anios = [anio];
   switchToTab('movimientos');
 }
 
