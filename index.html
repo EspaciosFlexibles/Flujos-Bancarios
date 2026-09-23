@@ -528,6 +528,7 @@ footer{ text-align:center; font-family: var(--mono); font-size:10.5px; color: va
           <input id="cfg-url-activos" type="text" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv">
         </div>
         <button type="submit" class="config-submit">Conectar</button>
+        <button type="button" class="btn-config-link" id="config-reset" style="margin-left:10px;">Restablecer al link de fábrica</button>
         <div id="config-error-row"><span id="sync-error-text"></span></div>
       </form>
     </div>
@@ -1336,9 +1337,12 @@ function loadConfig(){
   try{
     const raw = localStorage.getItem(CONFIG_KEY);
     const saved = raw ? JSON.parse(raw) : null;
+    // Lo que el usuario guardó a mano desde "Configurar conexión" tiene prioridad — si no,
+    // se usa el link de fábrica (DEFAULT_CONFIG). Antes era al revés: el link de fábrica
+    // siempre ganaba, así que pegar un link nuevo aquí no servía de nada después de recargar.
     return {
-      urlBase: DEFAULT_CONFIG.urlBase || (saved && saved.urlBase) || '',
-      urlActivos: DEFAULT_CONFIG.urlActivos || (saved && saved.urlActivos) || '',
+      urlBase: (saved && saved.urlBase) || DEFAULT_CONFIG.urlBase || '',
+      urlActivos: (saved && saved.urlActivos) || DEFAULT_CONFIG.urlActivos || '',
     };
   }catch(e){ return { ...DEFAULT_CONFIG }; }
 }
@@ -5975,6 +5979,15 @@ function initConfigForm(){
     const panel = document.getElementById('config-panel-body');
     const open = panel.style.display !== 'none';
     panel.style.display = open ? 'none' : 'block';
+  });
+
+  document.getElementById('config-reset').addEventListener('click', async ()=>{
+    try{ localStorage.removeItem(CONFIG_KEY); }catch(e){ /* ignore */ }
+    sheetsConfig = { urlBase: DEFAULT_CONFIG.urlBase || '', urlActivos: DEFAULT_CONFIG.urlActivos || '' };
+    inputBase.value = sheetsConfig.urlBase;
+    inputActivos.value = sheetsConfig.urlActivos;
+    document.getElementById('config-error-row').style.display = 'none';
+    await runSync(true);
   });
 
   document.getElementById('btn-refresh').addEventListener('click', ()=> runSync(true));
