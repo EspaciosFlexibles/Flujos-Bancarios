@@ -2894,9 +2894,17 @@ function renderAcumulado(soloGrafica){
   let datasets = [];
 
   if(acumuladoState.modo === 'holding'){
-    if(!soloGrafica) renderSaldosInicialesInputs([{ key:'HOLDING', label:'Holding' }], periodos);
-    const ancla = getAncla('HOLDING');
-    const data = calcularAcumulado(periodos, baseRows, ancla);
+    // "Consolidado" no tiene una sola cuenta de banco — cada empresa tiene la suya. Se calcula
+    // el saldo real-o-ancla de CADA empresa por separado (misma lógica que "Por empresa") y
+    // se suman período a período, en vez de mezclar los movimientos de las 6 y ponerles un
+    // solo punto de referencia ("Holding") que no corresponde a ninguna cuenta real.
+    const empresasHolding = getEmpresas();
+    if(!soloGrafica) renderSaldosInicialesInputs(empresasHolding.map(e => ({ key: e, label: e })), periodos);
+    const seriesPorEmpresa = empresasHolding.map(emp => {
+      const rowsEmp = baseRows.filter(r => r.empresa === emp);
+      return flujoAcumuladoPreferSaldoReal(periodos, rowsEmp, emp);
+    });
+    const data = periodos.map((_, i) => seriesPorEmpresa.reduce((sum, serie) => sum + (serie[i] || 0), 0));
     datasets = [{
       label: 'Flujo de caja acumulado', data, borderColor:'#00875f', backgroundColor:'#00875f',
       borderWidth: 2.5, tension:0.3, fill:false, pointRadius:3, pointBackgroundColor:'#00875f',
@@ -2907,8 +2915,7 @@ function renderAcumulado(soloGrafica){
     const paleta = ['#00875f','#cc4e0a','#5c8a00','#0d5ab8','#a2367a','#8a5c00','#00a37a','#e0203c'];
     datasets = empresas.map((emp, i) => {
       const rowsEmp = baseRows.filter(r => r.empresa === emp);
-      const ancla = getAncla(emp);
-      const data = calcularAcumulado(periodos, rowsEmp, ancla);
+      const data = flujoAcumuladoPreferSaldoReal(periodos, rowsEmp, emp);
       const color = paleta[i % paleta.length];
       return {
         label: emp, data, borderColor: color, backgroundColor: color,
