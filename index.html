@@ -33,6 +33,38 @@
 
 *{box-sizing:border-box; margin:0; padding:0;}
 
+/* ===== FEEDBACK AL PRESIONAR + FOCO DE TECLADO =====
+   Toda la app dependía solo de :hover, que no existe al tocar con el dedo (Index/celular)
+   y tampoco ayuda a quien navega con teclado. Esto cubre los dos casos en un solo lugar:
+   - :active en cada elemento clicable: feedback instantáneo al presionar, no al soltar.
+   - :focus-visible: anillo de foco visible SOLO cuando se navega con teclado (no aparece
+     al hacer clic con mouse/touch, que es justo lo que se ve raro si se usa :focus a secas).
+*/
+button, .btn-refresh, .btn-config-link, .btn-regresar, .btn-regresar-flecha, .msdrop-btn,
+.reset-btn, .tab-btn, .subtab-btn, .kpi.k-ratio, .activo-row-clickable, .msdrop-item,
+[data-clic-mov]{
+  transition: transform .1s ease, background-color .1s ease, box-shadow .1s ease;
+}
+button:active, .btn-refresh:active, .btn-config-link:active, .btn-regresar:active,
+.msdrop-btn:active, .reset-btn:active, .tab-btn:active, .subtab-btn:active,
+.kpi.k-ratio:active, .activo-row-clickable:active, .msdrop-item:active,
+[data-clic-mov]:active{
+  transform: scale(0.97);
+}
+.btn-regresar:active{ transform: scale(0.97) translateY(-2px); } /* conserva su propio hover */
+
+button:focus-visible, .btn-refresh:focus-visible, .btn-config-link:focus-visible,
+.btn-regresar:focus-visible, .msdrop-btn:focus-visible, .reset-btn:focus-visible,
+.tab-btn:focus-visible, .subtab-btn:focus-visible, .kpi.k-ratio:focus-visible,
+.activo-row-clickable:focus-visible, .msdrop-item:focus-visible,
+[data-clic-mov]:focus-visible{
+  outline: 2px solid var(--copper-bright); outline-offset: 2px; border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
 body{
   background: #ffffff;
   color: var(--paper);
@@ -93,7 +125,8 @@ body{
   display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none;
   padding: 16px 20px; background: var(--panel); border:1px solid var(--line); border-radius:4px;
 }
-#config-panel-body{ background: var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 4px 4px; padding: 20px 22px 22px; }
+#config-panel-body{ background: var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 4px 4px; padding: 20px 22px 22px; opacity:0; transition: opacity .15s ease; }
+#config-panel-body.abierto{ opacity:1; }
 #config-chevron{ transition: transform .2s ease; font-size:16px; color:var(--paper-faint); }
 .config-field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
 .config-field label{ font-family: var(--mono); font-size:10px; letter-spacing:0.07em; text-transform:uppercase; color: var(--paper-faint); }
@@ -224,7 +257,10 @@ body{
   background:#fff; border:1px solid var(--line-strong); border-radius:12px;
   box-shadow: 0 12px 32px rgba(20,20,30,0.14);
   padding:8px; z-index:90; display:none;
+  opacity:0; transform: scale(0.96) translateY(-6px); transform-origin: top left;
+  transition: opacity .14s ease, transform .14s ease;
 }
+.msdrop-panel.msdrop-abierto{ opacity:1; transform: scale(1) translateY(0); }
 .msdrop-item{ display:flex; align-items:center; gap:9px; padding:7px 9px; border-radius:7px; cursor:pointer; font-family:var(--sans); font-size:13.5px; color:var(--paper); user-select:none; }
 .msdrop-item:hover{ background: var(--panel-raised); }
 .msdrop-item input{ margin:0; accent-color: var(--teal-bright); cursor:pointer; }
@@ -1698,6 +1734,25 @@ async function syncFromSheets(){
   }
 }
 
+// ===== Apertura/cierre de los menús flotantes (.msdrop-panel), con una animación corta en
+// vez de un display:none/block seco — nace desde la esquina superior izquierda, que es donde
+// está el botón que lo abre (ver "Materials & depth" / "Anchor interactions to their source"). =====
+function abrirMsdropPanel(panel){
+  cerrarTodosMsdrop();
+  panel.style.display = 'block';
+  void panel.offsetHeight; // fuerza reflow: sin esto, el navegador junta el display y el
+                            // opacity en el mismo frame y no hay nada que animar
+  panel.classList.add('msdrop-abierto');
+}
+function cerrarMsdropPanel(panel){
+  if(!panel || !panel.classList.contains('msdrop-abierto')) { if(panel) panel.style.display = 'none'; return; }
+  panel.classList.remove('msdrop-abierto');
+  setTimeout(()=>{ if(!panel.classList.contains('msdrop-abierto')) panel.style.display = 'none'; }, 150);
+}
+function cerrarTodosMsdrop(){
+  document.querySelectorAll('.msdrop-panel').forEach(p=>cerrarMsdropPanel(p));
+}
+
 function isConfigured(){
   return !!(sheetsConfig.urlBase && sheetsConfig.urlActivos);
 }
@@ -1832,12 +1887,12 @@ function crearFiltroGlobalDropdown(key, btnId, panelId, getOptions, getLabel){
 
   btn.addEventListener('click', (e)=>{
     e.stopPropagation();
-    const abierto = panel.style.display === 'block';
-    document.querySelectorAll('.msdrop-panel').forEach(p=>p.style.display='none');
-    if(!abierto){ renderPanel(); panel.style.display = 'block'; }
+    const abierto = panel.classList.contains('msdrop-abierto');
+    cerrarTodosMsdrop();
+    if(!abierto){ renderPanel(); abrirMsdropPanel(panel); }
   });
   document.addEventListener('click', (e)=>{
-    if(!panel.contains(e.target) && e.target !== btn) panel.style.display = 'none';
+    if(!panel.contains(e.target) && e.target !== btn) cerrarMsdropPanel(panel);
   });
 
   actualizarBoton();
@@ -3103,7 +3158,9 @@ function renderERMargenes(){
   }).join('');
 
   cont.querySelectorAll('.kpi').forEach(el=>{
-    el.addEventListener('click', ()=>{
+    if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    if(!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    const activar = ()=>{
       const id = el.dataset.ratio;
       const r = RATIOS_ER.find(x=>x.id===id);
       if(ratioActivo === id){
@@ -3114,7 +3171,9 @@ function renderERMargenes(){
         resaltarLineasER(r.lineas);
       }
       cont.querySelectorAll('.kpi').forEach(k => k.classList.toggle('activo', k.dataset.ratio === ratioActivo));
-    });
+    };
+    el.addEventListener('click', activar);
+    el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); activar(); } });
   });
 
   // Si ya había un ratio activo (p.ej. tras cambiar el filtro), mantiene el resaltado.
@@ -4219,7 +4278,10 @@ function adjuntarClicsActivo(container){
     if(state.activosFiltro.length === 1 && state.activosFiltro[0] === tr.dataset.activo){
       tr.classList.add('activo-row-selected');
     }
+    if(!tr.hasAttribute('tabindex')) tr.setAttribute('tabindex', '0');
+    if(!tr.hasAttribute('role')) tr.setAttribute('role', 'button');
     tr.addEventListener('click', ()=> seleccionarActivo(tr.dataset.activo));
+    tr.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); seleccionarActivo(tr.dataset.activo); } });
   });
 }
 
@@ -4444,12 +4506,12 @@ function initActivosVistaControles(){
     };
     btnTipo.addEventListener('click', (e)=>{
       e.stopPropagation();
-      const abierto = panelTipo.style.display === 'block';
-      document.querySelectorAll('.msdrop-panel').forEach(p=>p.style.display='none');
-      if(!abierto){ renderPanelTipo(); panelTipo.style.display = 'block'; }
+      const abierto = panelTipo.classList.contains('msdrop-abierto');
+      cerrarTodosMsdrop();
+      if(!abierto){ renderPanelTipo(); abrirMsdropPanel(panelTipo); }
     });
     document.addEventListener('click', (e)=>{
-      if(!panelTipo.contains(e.target) && e.target !== btnTipo) panelTipo.style.display = 'none';
+      if(!panelTipo.contains(e.target) && e.target !== btnTipo) cerrarMsdropPanel(panelTipo);
     });
     actualizarBotonTipo();
   }
@@ -4475,19 +4537,19 @@ function initActivosVistaControles(){
         rb.addEventListener('change', ()=>{
           activosVistaState.orden = rb.value;
           actualizarBotonOrden();
-          panelOrden.style.display = 'none';
+          cerrarMsdropPanel(panelOrden);
           renderActivos();
         });
       });
     };
     btnOrden.addEventListener('click', (e)=>{
       e.stopPropagation();
-      const abierto = panelOrden.style.display === 'block';
-      document.querySelectorAll('.msdrop-panel').forEach(p=>p.style.display='none');
-      if(!abierto){ renderPanelOrden(); panelOrden.style.display = 'block'; }
+      const abierto = panelOrden.classList.contains('msdrop-abierto');
+      cerrarTodosMsdrop();
+      if(!abierto){ renderPanelOrden(); abrirMsdropPanel(panelOrden); }
     });
     document.addEventListener('click', (e)=>{
-      if(!panelOrden.contains(e.target) && e.target !== btnOrden) panelOrden.style.display = 'none';
+      if(!panelOrden.contains(e.target) && e.target !== btnOrden) cerrarMsdropPanel(panelOrden);
     });
     actualizarBotonOrden();
   }
@@ -5939,7 +6001,9 @@ function adjuntarClicsMovimientos(container){
   if(!container) return;
   container.querySelectorAll('[data-clic-mov]').forEach(el=>{
     el.style.cursor = 'pointer';
-    el.addEventListener('click', ()=>{
+    if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    if(!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    const activar = ()=>{
       goToMovimientosFiltrado({
         empresa: el.dataset.empresa || '',
         categoria: el.dataset.categoria || '',
@@ -5949,8 +6013,26 @@ function adjuntarClicsMovimientos(container){
         anio: el.dataset.anio || undefined,
         razonSocial: el.dataset.razon || undefined,
       });
-    });
+    };
+    el.addEventListener('click', activar);
+    el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); activar(); } });
   });
+}
+
+// ===== Mismo criterio que abrirMsdropPanel/cerrarMsdropPanel, pero para el panel completo
+// de "Configurar conexión" (fade simple, sin escala — es un bloque a todo lo ancho, no un
+// menú flotante que nace de un botón puntual). =====
+function mostrarPanelConfig(mostrar){
+  const panel = document.getElementById('config-panel-body');
+  if(!panel) return;
+  if(mostrar){
+    panel.style.display = 'block';
+    void panel.offsetHeight;
+    panel.classList.add('abierto');
+  } else {
+    panel.classList.remove('abierto');
+    setTimeout(()=>{ if(!panel.classList.contains('abierto')) panel.style.display = 'none'; }, 150);
+  }
 }
 
 function initConfigForm(){
@@ -5971,14 +6053,14 @@ function initConfigForm(){
     document.getElementById('config-error-row').style.display = 'none';
     const ok = await runSync(true);
     if(ok){
-      document.getElementById('config-panel-body').style.display = 'none';
+      mostrarPanelConfig(false);
     }
   });
 
   document.getElementById('config-toggle').addEventListener('click', ()=>{
     const panel = document.getElementById('config-panel-body');
     const open = panel.style.display !== 'none';
-    panel.style.display = open ? 'none' : 'block';
+    mostrarPanelConfig(!open);
   });
 
   document.getElementById('config-reset').addEventListener('click', async ()=>{
@@ -5999,12 +6081,12 @@ async function boot(){
 
   if(!isConfigured()){
     document.getElementById('config-banner').style.display = 'flex';
-    document.getElementById('config-panel-body').style.display = 'block';
+    mostrarPanelConfig(true);
     setSyncBadge('error', '● Sin conectar');
     return;
   }
 
-  document.getElementById('config-panel-body').style.display = 'none';
+  mostrarPanelConfig(false);
   await runSync(true);
 }
 
