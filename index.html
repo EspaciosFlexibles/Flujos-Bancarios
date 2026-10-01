@@ -2834,10 +2834,27 @@ function renderAcumuladoToggle(){
   });
 }
 
+// Para cada empresa, revisa si YA tiene saldo real capturado en absolutamente todos los
+// periodos de su historial (flujoRealPorPeriodo sin ningún null) — si es así, el punto de
+// referencia manual no le sirve de nada (nunca se usaría), así que no tiene sentido pedírselo.
+function tieneSaldoRealCompleto(rowsEmp, periodos){
+  if(periodos.length === 0) return false;
+  return flujoRealPorPeriodo(rowsEmp, periodos).every(v => v !== null);
+}
+
 function renderSaldosInicialesInputs(clavesConEtiqueta, periodos){
   const cont = document.getElementById('acumulado-saldos-iniciales');
   if(periodos.length === 0){ cont.innerHTML = ''; return; }
-  cont.innerHTML = clavesConEtiqueta.map(({key,label}) => {
+  cont.innerHTML = clavesConEtiqueta.map(({key,label,rowsEmp}) => {
+    // Con saldo real en TODOS los periodos (típico de una empresa que siempre importa su
+    // estado de cuenta): se avisa que ya no hace falta nada manual, en vez de seguir pidiendo
+    // un dato que nunca se va a usar en el cálculo.
+    if(rowsEmp && tieneSaldoRealCompleto(rowsEmp, periodos)){
+      return `
+      <div class="acumulado-saldo-item">
+        <span>${escaparHtmlSimple(label)} · <span style="color:var(--teal-bright);">✓ saldo real en todos los meses — no necesita referencia manual</span></span>
+      </div>`;
+    }
     const ancla = getAncla(key);
     const opcionInicial = `<option value="${ANCLA_INICIAL}" ${ancla.periodo===ANCLA_INICIAL || !ancla.periodo ? 'selected':''}>— Antes de todo tu historial —</option>`;
     const opcionesMeses = periodos.map(p =>
@@ -2899,7 +2916,7 @@ function renderAcumulado(soloGrafica){
     // se suman período a período, en vez de mezclar los movimientos de las 6 y ponerles un
     // solo punto de referencia ("Holding") que no corresponde a ninguna cuenta real.
     const empresasHolding = getEmpresas();
-    if(!soloGrafica) renderSaldosInicialesInputs(empresasHolding.map(e => ({ key: e, label: e })), periodos);
+    if(!soloGrafica) renderSaldosInicialesInputs(empresasHolding.map(e => ({ key: e, label: e, rowsEmp: baseRows.filter(r => r.empresa === e) })), periodos);
     const seriesPorEmpresa = empresasHolding.map(emp => {
       const rowsEmp = baseRows.filter(r => r.empresa === emp);
       return flujoAcumuladoPreferSaldoReal(periodos, rowsEmp, emp);
@@ -2911,7 +2928,7 @@ function renderAcumulado(soloGrafica){
     }];
   } else {
     const empresas = state.empresas.length ? state.empresas : getEmpresas();
-    if(!soloGrafica) renderSaldosInicialesInputs(empresas.map(e => ({ key: e, label: e })), periodos);
+    if(!soloGrafica) renderSaldosInicialesInputs(empresas.map(e => ({ key: e, label: e, rowsEmp: baseRows.filter(r => r.empresa === e) })), periodos);
     const paleta = ['#00875f','#cc4e0a','#5c8a00','#0d5ab8','#a2367a','#8a5c00','#00a37a','#e0203c'];
     datasets = empresas.map((emp, i) => {
       const rowsEmp = baseRows.filter(r => r.empresa === emp);
