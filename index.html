@@ -1792,6 +1792,20 @@ const state = {
   activosFiltro: [], // [] = todos — solo aplica en la pestaña Activos
 };
 
+// El año "actualmente corriendo" = el más reciente que exista en los datos — es el que se
+// preselecciona por default en todo el documento (ver aplicarAnioPorDefecto), para no mezclar
+// de entrada el histórico completo de varios años en cada tabla/gráfica.
+function anioMasRecienteDisponible(){
+  const anios = getAniosDisponibles();
+  return anios.length ? anios[anios.length - 1] : null;
+}
+let anioDefaultAplicado = false;
+function aplicarAnioPorDefecto(){
+  const anio = anioMasRecienteDisponible();
+  state.anios = anio ? [anio] : [];
+  anioDefaultAplicado = true;
+}
+
 // true si esa empresa debe mostrarse con el filtro global actual (vacío = todas).
 function empresaEnFiltro(empresa){
   return state.empresas.length === 0 || state.empresas.includes(empresa);
@@ -1919,7 +1933,8 @@ function initFiltroGlobal(){
 
   document.getElementById('reset-btn').addEventListener('click', ()=>{
     ocultarBotonRegresar();
-    state.empresas = []; state.meses = []; state.anios = []; state.modoActivos = 'todo'; state.activosFiltro = [];
+    state.empresas = []; state.meses = []; state.modoActivos = 'todo'; state.activosFiltro = [];
+    aplicarAnioPorDefecto(); // vuelve al año corriendo, no a "Todos" — es el mismo default de siempre
     document.querySelectorAll('#modo-activos-toggle button').forEach(b=>b.classList.toggle('active', b.dataset.modo==='todo'));
     ocultarDetalleActivo();
     coberturaVistaState.modo = 'mes';
@@ -2839,7 +2854,15 @@ function renderAcumuladoToggle(){
 // referencia manual no le sirve de nada (nunca se usaría), así que no tiene sentido pedírselo.
 function tieneSaldoRealCompleto(rowsEmp, periodos){
   if(periodos.length === 0) return false;
-  return flujoRealPorPeriodo(rowsEmp, periodos).every(v => v !== null);
+  // Se compara SOLO desde el primer periodo en que esta empresa ya tiene movimientos —
+  // antes de eso, la empresa todavía no operaba (o no se filtró ese rango), así que ahí el
+  // acumulado correctamente parte de $0 sin necesitar ninguna referencia manual. Comparar
+  // contra el rango combinado de TODAS las empresas (como antes) penalizaba a cualquiera que
+  // empezara después que la más antigua (p.ej. Movilidad, que sí tiene datos desde 2025).
+  const primerIdxConDatos = periodos.findIndex(p => rowsEmp.some(r => r.mes === p.mes && getAnioDeFila(r) === p.anio));
+  if(primerIdxConDatos === -1) return false; // esta empresa no tiene ningún movimiento en el rango
+  const periodosPropios = periodos.slice(primerIdxConDatos);
+  return flujoRealPorPeriodo(rowsEmp, periodosPropios).every(v => v !== null);
 }
 
 function renderSaldosInicialesInputs(clavesConEtiqueta, periodos){
@@ -5798,6 +5821,9 @@ async function runSync(showLoading){
   if(ok){
     setSyncBadge('ok', `● Sincronizado · ${fmtSyncTime(lastSync)}`);
     document.getElementById('config-banner').style.display = 'none';
+    // Solo la PRIMERA vez que los datos cargan con éxito en esta sesión — así no se le borra
+    // al usuario su propio filtro de Año cada vez que le da "Actualizar datos".
+    if(!anioDefaultAplicado){ aplicarAnioPorDefecto(); refrescarBotonesFiltroGlobal(); }
     renderCurrentTab();
   } else {
     setSyncBadge('error', '● Error de sincronización');
