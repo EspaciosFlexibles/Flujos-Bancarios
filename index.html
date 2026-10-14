@@ -2852,30 +2852,38 @@ function renderAcumuladoToggle(){
 // Para cada empresa, revisa si YA tiene saldo real capturado en absolutamente todos los
 // periodos de su historial (flujoRealPorPeriodo sin ningún null) — si es así, el punto de
 // referencia manual no le sirve de nada (nunca se usaría), así que no tiene sentido pedírselo.
-function tieneSaldoRealCompleto(rowsEmp, periodos){
-  if(periodos.length === 0) return false;
-  // Se compara SOLO desde el primer periodo en que esta empresa ya tiene movimientos —
-  // antes de eso, la empresa todavía no operaba (o no se filtró ese rango), así que ahí el
-  // acumulado correctamente parte de $0 sin necesitar ninguna referencia manual. Comparar
-  // contra el rango combinado de TODAS las empresas (como antes) penalizaba a cualquiera que
-  // empezara después que la más antigua (p.ej. Movilidad, que sí tiene datos desde 2025).
+// Regresa el periodo desde el que esta empresa tiene saldo real SIN NINGÚN hueco hasta el
+// final (o null si tiene algún hueco, o si no tiene ningún movimiento). Se compara SOLO
+// desde el primer periodo en que esta empresa ya tiene movimientos — antes de eso, la
+// empresa todavía no operaba, así que ahí el acumulado correctamente parte de $0 sin
+// necesitar ninguna referencia manual. Comparar contra el rango combinado de TODAS las
+// empresas penalizaba a cualquiera que empezara después que la más antigua (p.ej. Movilidad,
+// que sí tiene datos desde 2025) — pero esto NO significa que todas cubran el mismo rango:
+// cada una es completa solo desde SU PROPIO inicio, por eso el aviso en pantalla dice desde
+// cuándo, para no dar a entender que las 6 cubren el mismo histórico.
+function saldoRealCompletoDesde(rowsEmp, periodos){
+  if(periodos.length === 0) return null;
   const primerIdxConDatos = periodos.findIndex(p => rowsEmp.some(r => r.mes === p.mes && getAnioDeFila(r) === p.anio));
-  if(primerIdxConDatos === -1) return false; // esta empresa no tiene ningún movimiento en el rango
+  if(primerIdxConDatos === -1) return null; // esta empresa no tiene ningún movimiento en el rango
   const periodosPropios = periodos.slice(primerIdxConDatos);
-  return flujoRealPorPeriodo(rowsEmp, periodosPropios).every(v => v !== null);
+  const completo = flujoRealPorPeriodo(rowsEmp, periodosPropios).every(v => v !== null);
+  return completo ? periodosPropios[0] : null;
 }
 
 function renderSaldosInicialesInputs(clavesConEtiqueta, periodos){
   const cont = document.getElementById('acumulado-saldos-iniciales');
   if(periodos.length === 0){ cont.innerHTML = ''; return; }
   cont.innerHTML = clavesConEtiqueta.map(({key,label,rowsEmp}) => {
-    // Con saldo real en TODOS los periodos (típico de una empresa que siempre importa su
-    // estado de cuenta): se avisa que ya no hace falta nada manual, en vez de seguir pidiendo
-    // un dato que nunca se va a usar en el cálculo.
-    if(rowsEmp && tieneSaldoRealCompleto(rowsEmp, periodos)){
+    // Con saldo real en TODOS los periodos desde que esta empresa empezó a operar (típico de
+    // una que siempre importa su estado de cuenta): se avisa que ya no hace falta nada
+    // manual, en vez de seguir pidiendo un dato que nunca se va a usar en el cálculo. Se
+    // muestra desde cuándo, porque cada empresa puede empezar en un mes distinto — "completo"
+    // no significa que las 6 cubran el mismo histórico.
+    const desde = rowsEmp ? saldoRealCompletoDesde(rowsEmp, periodos) : null;
+    if(desde){
       return `
       <div class="acumulado-saldo-item">
-        <span>${escaparHtmlSimple(label)} · <span style="color:var(--teal-bright);">✓ saldo real en todos los meses — no necesita referencia manual</span></span>
+        <span>${escaparHtmlSimple(label)} · <span style="color:var(--teal-bright);">✓ saldo real completo desde ${labelPeriodo(desde)} — no necesita referencia manual</span></span>
       </div>`;
     }
     const ancla = getAncla(key);
