@@ -1469,6 +1469,21 @@ function toNumber(v){
   return isNegative ? -Math.abs(n) : n;
 }
 
+// Igual que toNumber, pero para el campo Saldo: una celda vacía/en blanco significa "no se
+// capturó saldo para este movimiento" (null), NO "el saldo es $0". Si se usara toNumber a
+// secas aquí, una celda de Saldo vacía se leería como 0 — un saldo de banco de $0 es un dato
+// real válido, así que flujoRealPorPeriodo lo tomaría como "ya hay saldo real este mes" y lo
+// arrastraría hacia adelante, haciendo que una empresa SIN saldo real capturado (como una cuya
+// hoja Bancario todavía trae los totales mensuales copiados del sistema manual, sin Saldo)
+// aparezca marcada como "✓ saldo real completo" sin tener ningún saldo real de verdad.
+function toNumberOrNull(v){
+  if(v === null || v === undefined) return null;
+  if(typeof v === 'number') return isNaN(v) ? null : v;
+  const s = String(v).trim();
+  if(!s) return null;
+  return toNumber(s);
+}
+
 // ---- Transformar filas CSV de "Consolidado" al formato interno usado por el dashboard de Flujos ----
 // Esta hoja tiene DOS bloques de columnas en la misma fila: uno marcado "INGRESOS..." y otro
 // "EGRESOS..." en la fila de título (justo arriba del header de columnas). Cada bloque repite
@@ -1545,7 +1560,7 @@ function rowsToBaseData(rows){
         razon_social: (r[b.iRazon]||'').trim(),
         activo: b.iActivo !== -1 ? (r[b.iActivo]||'').trim() : '',
         monto: Math.abs(monto),
-        saldo: b.iSaldo !== -1 ? toNumber(r[b.iSaldo]) : null,
+        saldo: b.iSaldo !== -1 ? toNumberOrNull(r[b.iSaldo]) : null,
         fecha: b.iFecha !== -1 ? (r[b.iFecha]||'').trim() : '',
       });
     });
